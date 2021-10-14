@@ -1,6 +1,36 @@
 // REQUIRE INQUIRER PACKAGE
 const inquirer = require('inquirer');
 
+var menuMap = {
+    "View All Departments": () => {
+        console.log('in all dept');
+    },
+
+    "View All Roles": () => {
+        console.log('in all roles');
+    },
+
+    "View All Employees": () => {
+        console.log('in all employees');
+    },
+    
+    "Add a Department": () => {
+        console.log('in add department');
+    },
+
+    "Add a Role": () => {
+        console.log('in add role');
+    },
+
+    "Add an Employee": () => {
+        console.log('in add employee');
+    },
+
+    "Update an Employee Role": () => {
+        console.log('in update employee');
+    }
+};
+
 function managerMenu() {
     return inquirer.prompt(
         [
@@ -19,27 +49,13 @@ function managerMenu() {
                 ],
             },
         ],
-    ).then(name => {
+    ).then(choices => {
         // IF RESPECTIVE OPTION IS SELECTED, DISPLAY RESPECTIVE DB TABLE
-
+        menuMap[choices.option]();
+        // CALL UP MENU AGAIN
+        managerMenu();
     })
 }
 
 managerMenu()
 
-
-        // if (name.option === "View All Departments") {
-        //     console.log("option 1");
-        // } else if (name.option === "View All Roles") {
-        //     console.log("option 2");
-        // } else if (name.option === "View All Employees") {
-        //     console.log("option 3");
-        // } else if (name.option === "Add a Department") {
-        //     console.log("option 4");
-        // } else if (name.option === "Add a Role") {
-        //     console.log("option 5");
-        // } else if (name.option === "Add an Employee") {
-        //     console.log("option 6");
-        // } else if (name.option === "Update an Employee Role") {
-        //     console.log("option 7");
-        // }
