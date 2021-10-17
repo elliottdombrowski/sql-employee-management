@@ -121,28 +121,33 @@ const viewAllRoles = () => {
 };
 
 const addRole = () => {
-    return inquirer.prompt(
-        [
+    db.query("SELECT department_name AS name, id AS value FROM departments", function(err, res) {
+        if(err)throw err;
+        console.log(res);
+
+        return inquirer.prompt(
+            [
             {
                 type: "input",
-                name: "newRoleName",
+                name: "role_title",
                 mesage: "Please Enter Your New Role's Title",
             },
             {
                 type: "input",
-                name: "newRoleSalary",
+                name: "role_salary",
                 message: "Please Enter Your Role's Salary",
             },
             {
                 type: "list",
-                name: "newRoleDept",
+                name: "role_department",
                 message: "Please Enter Which Department This Role Applies To",
-                choices: [
-                    // HOW TO INSERT ALL DEPARTMENTS DYNAMICALLY?
-                ],
+                choices: res
             },
         ]
-    )
+        ).then(data => {
+            
+        })
+    })
 }
 
 
