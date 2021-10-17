@@ -1,23 +1,44 @@
 // REQUIRE INQUIRER PACKAGE
 const inquirer = require('inquirer');
+// REQUIRE MYSQL
+const mysql = require('mysql2');
+
+// DECLARE PORT TO LISTEN ON - LOCAL && DYNAMIC
+
+// CONNECT TO MYSQL DATABASE
+const db = mysql.createConnection(
+    {
+        host: 'localhost',
+        // MYSQL USERNAME
+        user: 'root',
+        // ADD MYSQL PASSWORD
+        // TODO - REMOVE MY PASSWORD BEFORE DEPLOY
+        password: 'Ajira316!',
+        // TODO - ADD DATABASE
+        database: 'management_db'
+    },
+    console.log("connected to **TODO - INSERT DATABASE NAME** database.")
+);
+
+db.connect(err => {
+    if(err)throw err;
+    managerMenu()
+});
 
 var menuMap = {
     "View All Departments": () => {
         console.log('in all dept');
-        // CALL UP MENU AGAIN
-        managerMenu();
+        viewAllDepartments();
     },
 
     "View All Roles": () => {
         console.log('in all roles');
-        // CALL UP MENU AGAIN
-        managerMenu();
+        viewAllRoles();
     },
 
     "View All Employees": () => {
         console.log('in all employees');
-        // CALL UP MENU AGAIN
-        managerMenu();
+        viewAllEmployees();
     },
     
     "Add a Department": () => {
@@ -42,7 +63,7 @@ var menuMap = {
 };
 
 function managerMenu() {
-    return inquirer.prompt(
+    inquirer.prompt(
         [
             {
                 type: "list",
@@ -65,16 +86,38 @@ function managerMenu() {
     })
 }
 
+const viewAllDepartments = () => {
+    db.query("SELECT * FROM departments", function(err, res) {
+        if(err)throw err;
+        console.table(res);
+        managerMenu();
+    });
+};
+
 const addDepartment = () => {
     return inquirer.prompt(
         [
             {
                 type: "input",
-                name: "newDepartment",
+                //GOTTA MATCH SCHEMA NAME
+                name: "department_name",
                 message: "Add New Department Name",
             }
         ]
-    )
+    ).then(data => {
+        db.query("INSERT INTO departments SET ?", data, function(err, res) {
+            if(err)throw err;
+            managerMenu();
+        });
+    });
+};
+
+const viewAllRoles = () => {
+    db.query("SELECT * FROM roles", function(err, res) {
+        if(err)throw err;
+        console.table(res);
+        managerMenu();
+    });
 };
 
 const addRole = () => {
@@ -101,6 +144,15 @@ const addRole = () => {
         ]
     )
 }
+
+
+const viewAllEmployees = () => {
+    db.query("SELECT * FROM employees", function(err, res) {
+        if(err)throw err;
+        console.table(res);
+        managerMenu();
+    });
+};
 
 const addEmployee = () => {
     return inquirer.prompt(
@@ -144,5 +196,4 @@ const updateEmployee = () => {
     )
 }
 
-managerMenu()
 
