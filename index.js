@@ -1,67 +1,64 @@
 // REQUIRE INQUIRER PACKAGE
 const inquirer = require('inquirer');
+// REQUIRE CONSOLE.TABLE PACKAGE
+const cTable = require('console.table');
 // REQUIRE MYSQL
 const mysql = require('mysql2');
-
-// DECLARE PORT TO LISTEN ON - LOCAL && DYNAMIC
 
 // CONNECT TO MYSQL DATABASE
 const db = mysql.createConnection(
     {
         host: 'localhost',
-        // MYSQL USERNAME
+        // MYSQL USER
         user: 'root',
         // ADD MYSQL PASSWORD
         // TODO - REMOVE MY PASSWORD BEFORE DEPLOY
         password: 'Ajira316!',
-        // TODO - ADD DATABASE
+        // DATABASE TO CONNECT TO
         database: 'management_db'
     },
-    console.log("connected to **TODO - INSERT DATABASE NAME** database.")
 );
 
+// CONNECT TO MYSQL DB
 db.connect(err => {
+    //THROW ERROR IF UNSUCCESSFUL
     if(err)throw err;
+    //CALL INITIAL MANAGER MENU IN INQUIRER
     managerMenu()
 });
 
+//DECLARE OBJECT HOLDING FUNCTIONS TO CALL FOLLOWING PROMPTS FOR DEPARTMENTS/ROLES/EMPLOYEES
 var menuMap = {
     "View All Departments": () => {
-        console.log('in all dept');
         viewAllDepartments();
     },
 
     "View All Roles": () => {
-        console.log('in all roles');
         viewAllRoles();
     },
 
     "View All Employees": () => {
-        console.log('in all employees');
         viewAllEmployees();
     },
     
     "Add a Department": () => {
-        console.log('in add department');
         addDepartment();
     },
 
     "Add a Role": () => {
-        console.log('in add role');
         addRole();
     },
 
     "Add an Employee": () => {
-        console.log('in add employee');
         addEmployee();
     },
 
     "Update an Employee Role": () => {
-        console.log('in update employee');
         updateEmployee();
     }
 };
 
+//FUNCTION TO PROMPT MANAGER, PROVIDES OPTIONS TO VIEW OR ADD ROLES/DEPARTMENTS/EMPLOYEES
 function managerMenu() {
     inquirer.prompt(
         [
@@ -81,19 +78,23 @@ function managerMenu() {
             },
         ],
     ).then(choices => {
-        // IF RESPECTIVE OPTION IS SELECTED, DISPLAY RESPECTIVE DB TABLE
+        // IF RESPECTIVE OPTION IS SELECTED, REFERENCE MENUMAP OBJECT TO DISPLAY RESPECTIVE DB TABLE
         menuMap[choices.option]();
     })
 }
 
+//VIEW ALL DEPARTMENTS IN MYSQL DB
 const viewAllDepartments = () => {
+    //SELECT/VIEW DEPARTMENT TABLE
     db.query("SELECT * FROM departments", function(err, res) {
         if(err)throw err;
         console.table(res);
+        //RETURN ORIGINAL MENU TO SELECT OR ADD A NEW ROLE/DEPARTMENT/EMPLOYEE
         managerMenu();
     });
 };
 
+//ADD NEW DEPARTMENT TO MYSQL DB
 const addDepartment = () => {
     return inquirer.prompt(
         [
@@ -105,6 +106,7 @@ const addDepartment = () => {
             }
         ]
     ).then(data => {
+        //ADD NEW DEPARTMENT INTO TABLE, CALL UP MANAGER MENU
         db.query("INSERT INTO departments SET ?", data, function(err, res) {
             if(err)throw err;
             managerMenu();
@@ -112,16 +114,20 @@ const addDepartment = () => {
     });
 };
 
+//VIEW ALL ROLES IN MYSQL DB
 const viewAllRoles = () => {
+    //SELECT ROLES TABLE FROM DB, DISPLAY TABLE, AND RETURN TO MANAGER MENU
     db.query("SELECT * FROM roles", function(err, res) {
         if(err)throw err;
-        console.table(res);
+        console.table(res);``
         managerMenu();
     });
 };
 
+//ADD NEW ROLE TO MYSQL DB
 const addRole = () => {
-    db.query("SELECT department_name AS name, id AS value FROM departments", function(err, res) {
+    //SELECT AND DISPLAY DEPARTMENT NAME AND ID FROM DEPARTMENTS TABLE
+    db.query("SELECT department_name AS name, department_id AS value FROM departments", function(err, res) {
         if(err)throw err;
         console.log(res);
 
@@ -145,13 +151,18 @@ const addRole = () => {
             },
         ]
         ).then(data => {
-            
-        })
-    })
-}
+            //THEN INSERT NEW ROLE INTO DB ROLES TABLE, THROW ERROR IF UNSUCCESSFUL, AND RETURN TO MANAGER MENU
+            db.query("INSERT INTO roles SET ?", data, function(err, res) {
+                if(err)throw err;
+                managerMenu();
+            });
+        });
+    });
+};
 
-
+//VIEW ALL CURRENT EMPLOYEES
 const viewAllEmployees = () => {
+    //SELECT ALL FROM EMPLOYEES TABLE, THROW ERROR IF UNSUCCESSFUL, AND RETURN TO MANAGER MENU
     db.query("SELECT * FROM employees", function(err, res) {
         if(err)throw err;
         console.table(res);
@@ -183,22 +194,34 @@ const addEmployee = () => {
                 message: "Please Enter New Employee's Manager",
             },
         ]
-    )
-}
+    ).then(data => {
+        //THEN INSERT NEW EMPLOYEE INTO EMPLOYEE TABLE, THROW ERROR IF UNSUCCESSFUL, AND RETURN TO MANAGER MENU
+        db.query("INSERT INTO employees SET ?", data, function(err, res) {
+            if(err)throw err;
+            managerMenu();
+        });
+    });
+};
 
 const updateEmployee = () => {
-    return inquirer.prompt(
-        [
-            {
-                type: "list",
-                name: "updateEmployeeRole",
-                message: "Please Choose an Employee to Update",
-                choices: [
-                    //TODO: ENTER EMPLOYEE NAMES DYNAMICALLY
-                ]
-            }
-        ]
-    )
-}
-
-
+    db.query("SELECT employee_first, employee_last, id AS value FROM employees", function(err, res) {
+        if(err)throw err;
+        console.log(res);
+        return inquirer.prompt(
+            [
+                {
+                    type: "list",
+                    name: "updateEmployeeRole",
+                    message: "Please Choose an Employee to Update",
+                    choices: res
+                }
+            ]
+        ).then(data => {
+            //THEN UPDATE EMPLOYEE IN EMPLOYEE TABLE, THROW ERROR IF UNSUCCESSFUL, AND RETURN TO MANAGER MENU
+            db.query("INSERT INTO employees SET ?", data, function(err, res) {
+                if(err)throw err;
+                managerMenu();
+            });
+        });
+    });
+};
