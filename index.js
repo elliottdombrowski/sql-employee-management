@@ -135,7 +135,7 @@ const addRole = () => {
     //SELECT AND DISPLAY DEPARTMENT NAME AND ID FROM DEPARTMENTS TABLE
     db.query("SELECT department_name AS name, department_id AS value FROM departments", function(err, res) {
         if(err)throw err;
-        console.log(res);
+        console.table(res);
 
         return inquirer.prompt(
             [
@@ -202,8 +202,8 @@ const addEmployee = () => {
             },
             {
                 type: "input",
-                name: "employee_manager",
-                message: "Please Enter New Employee's Manager",
+                name: "employee_manager_id",
+                message: "Please Enter New Employee's Manager ID",
             },
         ]
     ).then(data => {
