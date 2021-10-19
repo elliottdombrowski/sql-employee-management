@@ -155,7 +155,7 @@ const addRole = () => {
                 message: "Please Enter Which Department This Role Applies To",
                 choices: res
             },
-        ]
+            ]
         ).then(data => {
             //THEN INSERT NEW ROLE INTO DB ROLES TABLE, THROW ERROR IF UNSUCCESSFUL, AND RETURN TO MANAGER MENU
             db.query("INSERT INTO roles SET ?", data, function(err, res) {
@@ -222,34 +222,37 @@ const addEmployee = () => {
 };
 
 const updateEmployee = () => {
-    db.query("SELECT employee_first, employee_last, emp_id AS value FROM employees", function(err, res) {
-        if(err)throw err;
-        console.table(res);
-        return inquirer.prompt(
-            [
-                {
-                    type: "list",
-                    name: "emp_id",
-                    message: "Please Choose an Employee to Update",
-                    choices: res
-                },
-                {
-                    type: "input", 
-                    name: "employee_role",
-                    message: "Please Choose a New Role ID For Your Employee"
-                },
-            ]
-        ).then(data => {
-            //THEN UPDATE EMPLOYEE IN EMPLOYEE TABLE, THROW ERROR IF UNSUCCESSFUL, AND RETURN TO MANAGER MENU
-            db.query("UPDATE employees SET employee_role=? WHERE emp_id=?", [data.employee_role, data.emp_id], function(err, res) {
-                if (err) {
-                    console.log("------------------------");
-                    console.log("");
-                    console.log("Please enter a valid role");
-                    console.log("");                    
-                    console.log("------------------------");
-                };
-                managerMenu();
+    db.query("SELECT role_id AS value FROM roles", function(err, roles) {
+        db.query("SELECT employee_first AS firstname, employee_last AS lastname, r.role_title, e.employee_role AS roleid, emp_id AS value FROM employees e, roles r WHERE e.employee_role = r.role_id", function(err, res) {
+            if(err)throw err;
+            console.table(res);
+         return inquirer.prompt(
+                [
+                    {
+                        type: "list",
+                        name: "emp_id",
+                        message: "Please Choose an Employee to Update",
+                        choices: res
+                    },
+                    {
+                        type: "list", 
+                        name: "employee_role",
+                        message: "Please Choose a New Role ID For Your Employee",
+                        choices: roles
+                    },
+                ]
+            ).then(data => {
+                //THEN UPDATE EMPLOYEE IN EMPLOYEE TABLE, THROW ERROR IF UNSUCCESSFUL, AND RETURN TO MANAGER MENU
+                db.query("UPDATE employees SET employee_role=? WHERE emp_id=?", [data.employee_role, data.emp_id], function(err, res) {
+                    if (err) {
+                        console.log("------------------------");
+                        console.log("");
+                        console.log("Please enter a valid role");
+                        console.log("");                    
+                        console.log("------------------------");
+                    };
+                    managerMenu();
+                });
             });
         });
     });
