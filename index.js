@@ -108,7 +108,13 @@ const addDepartment = () => {
     ).then(data => {
         //ADD NEW DEPARTMENT INTO TABLE, CALL UP MANAGER MENU
         db.query("INSERT INTO departments SET ?", data, function(err, res) {
-            if(err)throw err;
+            if (err) {
+                console.log("------------------------");
+                console.log("");
+                console.log("Please enter a valid department");
+                console.log("");                    
+                console.log("------------------------");
+            };
             managerMenu();
         });
     });
@@ -153,7 +159,13 @@ const addRole = () => {
         ).then(data => {
             //THEN INSERT NEW ROLE INTO DB ROLES TABLE, THROW ERROR IF UNSUCCESSFUL, AND RETURN TO MANAGER MENU
             db.query("INSERT INTO roles SET ?", data, function(err, res) {
-                if(err)throw err;
+                if (err) {
+                    console.log("------------------------");
+                    console.log("");
+                    console.log("Please enter a valid role");
+                    console.log("");                    
+                    console.log("------------------------");
+                };
                 managerMenu();
             });
         });
@@ -197,7 +209,13 @@ const addEmployee = () => {
     ).then(data => {
         //THEN INSERT NEW EMPLOYEE INTO EMPLOYEE TABLE, THROW ERROR IF UNSUCCESSFUL, AND RETURN TO MANAGER MENU
         db.query("INSERT INTO employees SET ?", data, function(err, res) {
-            if(err)throw err;
+            if (err) {
+                console.log("------------------------");
+                console.log("");
+                console.log("Please enter valid employee information");
+                console.log("");                    
+                console.log("------------------------");
+            };
             managerMenu();
         });
     });
@@ -218,6 +236,7 @@ const updateEmployee = () => {
                 {
                     type: "input", 
                     name: "employee_role",
+                    message: "Please Choose a New Role ID For Your Employee"
                 },
             ]
         ).then(data => {
