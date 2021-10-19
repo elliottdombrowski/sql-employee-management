@@ -175,22 +175,22 @@ const addEmployee = () => {
         [
             {
                 type: "input",
-                name: "firstname",
+                name: "employee_first",
                 message: "Please Enter New Employee's First Name",
             },
             {
                 type: "input",
-                name: "lastname",
+                name: "employee_last",
                 message: "Please Enter New Employee's Last Name",
             },
             {
                 type: "input",
-                name: "newEmployeeRole",
-                message: "Please Enter New Employee's Role",
+                name: "employee_role",
+                message: "Please Enter New Employee's Role ID",
             },
             {
                 type: "input",
-                name: "newEmployeeManager",
+                name: "employee_manager",
                 message: "Please Enter New Employee's Manager",
             },
         ]
@@ -204,22 +204,32 @@ const addEmployee = () => {
 };
 
 const updateEmployee = () => {
-    db.query("SELECT employee_first, employee_last, id AS value FROM employees", function(err, res) {
+    db.query("SELECT employee_first, employee_last, emp_id AS value FROM employees", function(err, res) {
         if(err)throw err;
-        console.log(res);
+        console.table(res);
         return inquirer.prompt(
             [
                 {
                     type: "list",
-                    name: "updateEmployeeRole",
+                    name: "emp_id",
                     message: "Please Choose an Employee to Update",
                     choices: res
-                }
+                },
+                {
+                    type: "input", 
+                    name: "employee_role",
+                },
             ]
         ).then(data => {
             //THEN UPDATE EMPLOYEE IN EMPLOYEE TABLE, THROW ERROR IF UNSUCCESSFUL, AND RETURN TO MANAGER MENU
-            db.query("INSERT INTO employees SET ?", data, function(err, res) {
-                if(err)throw err;
+            db.query("UPDATE employees SET employee_role=? WHERE emp_id=?", [data.employee_role, data.emp_id], function(err, res) {
+                if (err) {
+                    console.log("------------------------");
+                    console.log("");
+                    console.log("Please enter a valid role");
+                    console.log("");                    
+                    console.log("------------------------");
+                };
                 managerMenu();
             });
         });
