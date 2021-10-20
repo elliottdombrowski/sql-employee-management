@@ -55,7 +55,7 @@ var menuMap = {
 
     "Update an Employee Role": () => {
         updateEmployee();
-    }
+    },
 };
 
 //FUNCTION TO PROMPT MANAGER, PROVIDES OPTIONS TO VIEW OR ADD ROLES/DEPARTMENTS/EMPLOYEES
@@ -226,24 +226,30 @@ const updateEmployee = () => {
         db.query("SELECT employee_first AS firstname, employee_last AS lastname, r.role_title, e.employee_role AS roleid, emp_id AS value FROM employees e, roles r WHERE e.employee_role = r.role_id", function(err, res) {
             if(err)throw err;
             console.table(res);
+            //CALL EMPY VARIABLE FOR ARRAY OF RESPONSES
+            let resArr = [];
+            //FOR EACH INDEX POSITION, PUSH FIRST NAME TABLE INTO RES ARRAY
+            for (let i = 0; i<res.length; i++) {
+                resArr.push(res[i].firstname);
+            };
          return inquirer.prompt(
                 [
                     {
                         type: "list",
-                        name: "emp_id",
+                        name: "firstname",
                         message: "Please Choose an Employee to Update",
-                        choices: res
+                        choices: resArr
                     },
                     {
                         type: "list", 
-                        name: "employee_role",
+                        name: "roleid",
                         message: "Please Choose a New Role ID For Your Employee",
                         choices: roles
                     },
                 ]
             ).then(data => {
                 //THEN UPDATE EMPLOYEE IN EMPLOYEE TABLE, THROW ERROR IF UNSUCCESSFUL, AND RETURN TO MANAGER MENU
-                db.query("UPDATE employees SET employee_role=? WHERE emp_id=?", [data.employee_role, data.emp_id], function(err, res) {
+                db.query("UPDATE employees SET employee_role=? WHERE employee_first=?", [data.roleid, data.firstname], function(err, res) {
                     if (err) {
                         console.log("------------------------");
                         console.log("");
